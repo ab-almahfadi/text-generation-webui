@@ -146,8 +146,8 @@ def create_interface():
         shared.gradio['interface'].launch(
             prevent_thread_lock=True,
             share=True,
-            server_name=None if not shared.args.listen else (shared.args.listen_host or '0.0.0.0'),
-            server_port=shared.args.listen_port,
+            server_name='0.0.0.0',  # <-- This ensures it listens on all network interfaces
+            server_port=shared.args.listen_port if shared.args.listen_port else 80,  # <-- Default to port 80 if not specified
             inbrowser=shared.args.auto_launch,
             auth=auth or None,
             ssl_verify=False if (shared.args.ssl_keyfile or shared.args.ssl_certfile) else True,
