@@ -172,7 +172,7 @@ def install_webui():
     install_pytorch = "python -m pip install torch torchvision torchaudio"
 
     if any((is_windows(), is_linux())) and choice == "A":
-        install_pytorch = "python -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118 && wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.1-1_all.deb && sudo dpkg -i cuda-keyring_1.1-1_all.deb && echo "" | sudo apt-get -y install cuda-toolkit-12-3 && echo "" | sudo apt-get install -y cuda-drivers"
+        install_pytorch = "python -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118"
     elif not is_macos() and choice == "B":
         if is_linux():
             install_pytorch = "python -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6"
