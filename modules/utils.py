@@ -71,7 +71,12 @@ def natural_keys(text):
 
 
 def get_available_models():
-    model_list = ['None']
+    available_models = [name for name in os.listdir('models') if os.path.isdir(os.path.join('models', name))]
+    if not available_models:
+        print("No models available in the models directory.")
+        return
+    selected_model = available_models[0]
+    model_list = [selected_model]
     for item in list(Path(f'{shared.args.model_dir}/').glob('*')):
         if not item.name.endswith(('.txt', '-np', '.pt', '.json', '.yaml', '.py')) and 'llama-tokenizer' not in item.name:
             model_list.append(re.sub('.pth$', '', item.name))

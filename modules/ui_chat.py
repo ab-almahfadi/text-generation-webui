@@ -185,7 +185,7 @@ def create_event_handlers():
         lambda: None, None, None, _js=f'() => {{{ui.audio_notification_js}}}').then(ui.gather_interface_values, gradio(shared.input_elements), gradio('interface_state'))
     
     shared.gradio['Load'].click(
-        ui.gather_interface_values, gradio(selected_model), gradio('interface_state')).then(
+        ui.gather_interface_values, gradio(shared.input_elements), gradio('interface_state')).then(
         update_model_parameters, gradio('interface_state'), None).then(
         partial(load_model_wrapper, autoload=True), gradio('model_menu', 'loader'), gradio('model_status'), show_progress=False).success(
         update_truncation_length, gradio('truncation_length', 'interface_state'), gradio('truncation_length')).then(
