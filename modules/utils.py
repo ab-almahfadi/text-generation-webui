@@ -81,7 +81,7 @@ def get_available_models():
         if not item.name.endswith(('.txt', '-np', '.pt', '.json', '.yaml', '.py')) and 'llama-tokenizer' not in item.name:
             model_list.append(re.sub('.pth$', '', item.name))
 
-    return sorted(model_list, key=natural_keys)
+    return sorted(selected_model, key=natural_keys)
 
 
 def get_available_presets():
