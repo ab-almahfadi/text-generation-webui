@@ -76,12 +76,12 @@ def get_available_models():
         print("No models available in the models directory.")
         return
     selected_model = available_models[0]
-    model_list = [selected_model]
+    model_list = []
     for item in list(Path(f'{shared.args.model_dir}/').glob('*')):
         if not item.name.endswith(('.txt', '-np', '.pt', '.json', '.yaml', '.py')) and 'llama-tokenizer' not in item.name:
             model_list.append(re.sub('.pth$', '', item.name))
 
-    return sorted(selected_model, key=natural_keys)
+    return sorted(model_list, key=natural_keys)
 
 
 def get_available_presets():
