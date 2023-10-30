@@ -362,4 +362,4 @@ def create_event_handlers():
     selected_model = available_models[0]
 
     # Automatically load the default model when the Gradio system is initialized
-    load_model(selected_model, loader)
+    load_model(selected_model, loader=None)
