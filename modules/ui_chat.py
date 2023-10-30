@@ -354,12 +354,12 @@ def create_event_handlers():
     shared.gradio['show_controls'].change(None, gradio('show_controls'), None, _js=f'(x) => {{{ui.show_controls_js}; toggle_controls(x)}}')
 
             # If no model is explicitly selected, fetch available models
-    if selected_model is None or selected_model == '':
-        available_models = [name for name in os.listdir('models') if os.path.isdir(os.path.join('models', name))]
-        if not available_models:
-            yield "No models available in the models directory."
-            return
-        selected_model = available_models[0]
+   
+    available_models = [name for name in os.listdir('models') if os.path.isdir(os.path.join('models', name))]
+    if not available_models:
+        yield "No models available in the models directory."
+        return
+    selected_model = available_models[0]
 
     # Automatically load the default model when the Gradio system is initialized
     initial_model_load_status = next(load_model_wrapper(selected_model,autoload=True))
