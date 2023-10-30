@@ -4,6 +4,7 @@ import re
 import traceback
 from functools import partial
 from pathlib import Path
+import os
 
 import gradio as gr
 import psutil
@@ -185,37 +186,46 @@ def create_event_handlers():
     shared.gradio['autoload_model'].change(lambda x: gr.update(visible=not x), gradio('autoload_model'), gradio('load_model'))
 
 
-def load_model_wrapper(selected_model, loader, autoload=False):
+def load_model_wrapper(selected_model=None, loader=None, autoload=False):
+    # Check if model directory exists
+    if not os.path.exists('models'):
+        yield "The models directory does not exist."
+        return
+    
+    # If no model is explicitly selected, fetch available models
+    if selected_model is None or selected_model == 'None':
+        available_models = [name for name in os.listdir('models') if os.path.isdir(os.path.join('models', name))]
+        if not available_models:
+            yield "No models available in the models directory."
+            return
+        selected_model = available_models[0]
+    
     if not autoload:
         yield f"The settings for `{selected_model}` have been updated.\n\nClick on \"Load\" to load it."
         return
+    
+    try:
+        yield f"Loading `{selected_model}`..."
+        shared.model_name = selected_model
+        unload_model()
+        if selected_model != '':
+            shared.model, shared.tokenizer = load_model(shared.model_name, loader)
 
-    if selected_model == 'None':
-        yield "No model selected"
-    else:
-        try:
-            yield f"Loading `{selected_model}`..."
-            shared.model_name = selected_model
-            unload_model()
-            if selected_model != '':
-                shared.model, shared.tokenizer = load_model(shared.model_name, loader)
+        if shared.model is not None:
+            output = f"Successfully loaded `{selected_model}`."
 
-            if shared.model is not None:
-                output = f"Successfully loaded `{selected_model}`."
+            settings = get_model_metadata(selected_model)
+            if 'instruction_template' in settings:
+                output += '\n\nIt seems to be an instruction-following model with template "{}". In the chat tab, instruct or chat-instruct modes should be used.'.format(settings['instruction_template'])
 
-                settings = get_model_metadata(selected_model)
-                if 'instruction_template' in settings:
-                    output += '\n\nIt seems to be an instruction-following model with template "{}". In the chat tab, instruct or chat-instruct modes should be used.'.format(settings['instruction_template'])
-
-                yield output
-            else:
-                yield f"Failed to load `{selected_model}`."
-        except:
-            exc = traceback.format_exc()
-            logger.error('Failed to load the model.')
-            print(exc)
-            yield exc.replace('\n', '\n\n')
-
+            yield output
+        else:
+            yield f"Failed to load `{selected_model}`."
+    except:
+        exc = traceback.format_exc()
+        logger.error('Failed to load the model.')
+        print(exc)
+        yield exc.replace('\n', '\n\n')
 
 def load_lora_wrapper(selected_loras):
     yield ("Applying the following LoRAs to {}:\n\n{}".format(shared.model_name, '\n'.join(selected_loras)))
