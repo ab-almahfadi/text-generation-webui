@@ -185,20 +185,28 @@ def create_event_handlers():
     shared.gradio['get_file_list'].click(partial(download_model_wrapper, return_links=True), gradio('custom_model_menu', 'download_specific_file'), gradio('model_status'), show_progress=True)
     shared.gradio['autoload_model'].change(lambda x: gr.update(visible=not x), gradio('autoload_model'), gradio('load_model'))
 
+        # If no model is explicitly selected, fetch available models
+    if selected_model is None or selected_model == '':
+        available_models = [name for name in os.listdir('models') if os.path.isdir(os.path.join('models', name))]
+        if not available_models:
+            yield "No models available in the models directory."
+            return
+        selected_model = available_models[0]
+
     # Automatically load the default model when the Gradio system is initialized
-    initial_model_load_status = next(load_model_wrapper(autoload=True))
+    initial_model_load_status = next(load_model_wrapper(selected_model,autoload=True))
     if initial_model_load_status:
         print(initial_model_load_status)
 
 
-def load_model_wrapper(selected_model=None, loader=None, autoload=False):
+def load_model_wrapper(selected_model, loader=None, autoload=True):
     # Check if model directory exists
     if not os.path.exists('models'):
         yield "The models directory does not exist."
         return
     
     # If no model is explicitly selected, fetch available models
-    if selected_model is None or selected_model == 'None':
+    if selected_model is None or selected_model == '':
         available_models = [name for name in os.listdir('models') if os.path.isdir(os.path.join('models', name))]
         if not available_models:
             yield "No models available in the models directory."
