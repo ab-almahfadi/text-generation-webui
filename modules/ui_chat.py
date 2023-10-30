@@ -20,6 +20,14 @@ clear_arr = ('delete_chat-confirm', 'delete_chat', 'delete_chat-cancel')
 def create_ui():
     mu = shared.args.multi_user
 
+    # Automatically load the default model when Gradio system is initialized
+    available_models = [name for name in os.listdir('models') if os.path.isdir(os.path.join('models', name))]
+    if not available_models:
+        print("No models available in the models directory.")
+        return
+    selected_model = available_models[0]
+    load_model(selected_model, loader=None)
+
     shared.gradio['Chat input'] = gr.State()
     shared.gradio['dummy'] = gr.State()
     shared.gradio['history'] = gr.State({'internal': [], 'visible': []})
@@ -352,14 +360,3 @@ def create_event_handlers():
         lambda: None, None, None, _js=f'() => {{{ui.switch_tabs_js}; switch_to_notebook()}}')
 
     shared.gradio['show_controls'].change(None, gradio('show_controls'), None, _js=f'(x) => {{{ui.show_controls_js}; toggle_controls(x)}}')
-
-            # If no model is explicitly selected, fetch available models
-   
-    available_models = [name for name in os.listdir('models') if os.path.isdir(os.path.join('models', name))]
-    if not available_models:
-        yield "No models available in the models directory."
-        return
-    selected_model = available_models[0]
-
-    # Automatically load the default model when the Gradio system is initialized
-    load_model(selected_model, loader=None)
