@@ -24,6 +24,11 @@ from modules.utils import gradio
 
 def create_ui():
     mu = shared.args.multi_user
+    available_models = [name for name in os.listdir('models') if os.path.isdir(os.path.join('models', name))]
+    if not available_models:
+        print("No models available in the models directory.")
+        return
+    selected_model = available_models[0]
 
     # Finding the default values for the GPU and CPU memories
     total_mem = []
@@ -53,7 +58,7 @@ def create_ui():
                 with gr.Row():
                     with gr.Column():
                         with gr.Row():
-                            shared.gradio['model_menu'] = gr.Dropdown(choices=utils.get_available_models(), value=shared.model_name, label='Model', elem_classes='slim-dropdown', interactive=not mu)
+                            shared.gradio['model_menu'] = gr.Dropdown(choices=selected_model, value=shared.model_name, label='Model', elem_classes='slim-dropdown', interactive=not mu, allow_custom_value=True)
                             ui.create_refresh_button(shared.gradio['model_menu'], lambda: None, lambda: {'choices': utils.get_available_models()}, 'refresh-button', interactive=not mu)
                             shared.gradio['load_model'] = gr.Button("Load", visible=not shared.settings['autoload_model'], elem_classes='refresh-button', interactive=not mu)
                             shared.gradio['unload_model'] = gr.Button("Unload", elem_classes='refresh-button', interactive=not mu)
