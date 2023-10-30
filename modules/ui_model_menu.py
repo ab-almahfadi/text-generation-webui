@@ -200,6 +200,13 @@ def create_event_handlers():
 
 
 def load_model_wrapper(selected_model, loader=None, autoload=True):
+            # If no model is explicitly selected, fetch available models
+    if selected_model is None or selected_model == '':
+        available_models = [name for name in os.listdir('models') if os.path.isdir(os.path.join('models', name))]
+        if not available_models:
+            yield "No models available in the models directory."
+            return
+        selected_model = available_models[0]
     # Check if model directory exists
     if not os.path.exists('models'):
         yield "The models directory does not exist."

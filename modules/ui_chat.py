@@ -10,7 +10,7 @@ from modules import chat, prompts, shared, ui, utils
 from modules.html_generator import chat_html_wrapper
 from modules.text_generation import stop_everything_event
 from modules.utils import gradio
-from modules.ui_model_menu import load_model_wrapper
+from modules.models import load_model
 
 inputs = ('Chat input', 'interface_state')
 reload_arr = ('history', 'name1', 'name2', 'mode', 'chat_style')
@@ -362,6 +362,4 @@ def create_event_handlers():
     selected_model = available_models[0]
 
     # Automatically load the default model when the Gradio system is initialized
-    initial_model_load_status = next(load_model_wrapper(selected_model,autoload=True))
-    if initial_model_load_status:
-        print(initial_model_load_status)
+    load_model(selected_model, loader)
