@@ -191,7 +191,7 @@ def create_event_handlers():
         update_truncation_length, gradio('truncation_length', 'interface_state'), gradio('truncation_length')).then(
         lambda x: x, gradio('loader'), gradio('filter_by_loader'))
     # Simulate a click on the Load button to run its event automatically
-    shared.gradio['Load'].click()
+    shared.gradio['load_model'].click()
 
     shared.gradio['textbox'].submit(
         ui.gather_interface_values, gradio(shared.input_elements), gradio('interface_state')).then(
