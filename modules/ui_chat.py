@@ -10,7 +10,7 @@ from modules import chat, prompts, shared, ui, utils
 from modules.html_generator import chat_html_wrapper
 from modules.text_generation import stop_everything_event
 from modules.utils import gradio
-from modules.models import load_model
+from modules.ui_model_menu import load_model, update_model_parameters, load_model_wrapper,update_truncation_length
 
 inputs = ('Chat input', 'interface_state')
 reload_arr = ('history', 'name1', 'name2', 'mode', 'chat_style')
@@ -26,7 +26,8 @@ def create_ui():
         print("No models available in the models directory.")
         return
     selected_model = available_models[0]
-    load_model(selected_model, loader=None)
+    # load_model(selected_model, loader=None)
+
 
     shared.gradio['Chat input'] = gr.State()
     shared.gradio['dummy'] = gr.State()
@@ -164,6 +165,12 @@ def create_chat_settings_ui():
 
 def create_event_handlers():
 
+    available_models = [name for name in os.listdir('models') if os.path.isdir(os.path.join('models', name))]
+    if not available_models:
+        print("No models available in the models directory.")
+        return
+    selected_model = available_models[0]
+
     # Obsolete variables, kept for compatibility with old extensions
     shared.input_params = gradio(inputs)
     shared.reload_inputs = gradio(reload_arr)
@@ -174,7 +181,13 @@ def create_event_handlers():
         chat.generate_chat_reply_wrapper, gradio(inputs), gradio('display', 'history'), show_progress=False).then(
         ui.gather_interface_values, gradio(shared.input_elements), gradio('interface_state')).then(
         chat.save_history, gradio('history', 'unique_id', 'character_menu', 'mode'), None).then(
-        lambda: None, None, None, _js=f'() => {{{ui.audio_notification_js}}}')
+        lambda: None, None, None, _js=f'() => {{{ui.audio_notification_js}}}').then(ui.gather_interface_values, gradio(shared.input_elements), gradio('interface_state'))
+    
+    shared.gradio['Load'].click(
+        update_model_parameters, gradio('interface_state'), None).then(
+        partial(load_model_wrapper, autoload=True), gradio('model_menu', 'loader'), gradio('model_status'), show_progress=False).success(
+        update_truncation_length, gradio('truncation_length', 'interface_state'), gradio('truncation_length')).then(
+        lambda x: x, gradio('loader'), gradio('filter_by_loader'))
 
     shared.gradio['textbox'].submit(
         ui.gather_interface_values, gradio(shared.input_elements), gradio('interface_state')).then(
