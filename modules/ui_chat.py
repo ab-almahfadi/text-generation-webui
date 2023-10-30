@@ -1,6 +1,7 @@
 import json
 from functools import partial
 from pathlib import Path
+import os
 
 import gradio as gr
 from PIL import Image
@@ -9,6 +10,7 @@ from modules import chat, prompts, shared, ui, utils
 from modules.html_generator import chat_html_wrapper
 from modules.text_generation import stop_everything_event
 from modules.utils import gradio
+from modules.ui_model_menu import load_model_wrapper
 
 inputs = ('Chat input', 'interface_state')
 reload_arr = ('history', 'name1', 'name2', 'mode', 'chat_style')
@@ -350,3 +352,16 @@ def create_event_handlers():
         lambda: None, None, None, _js=f'() => {{{ui.switch_tabs_js}; switch_to_notebook()}}')
 
     shared.gradio['show_controls'].change(None, gradio('show_controls'), None, _js=f'(x) => {{{ui.show_controls_js}; toggle_controls(x)}}')
+
+            # If no model is explicitly selected, fetch available models
+    if selected_model is None or selected_model == '':
+        available_models = [name for name in os.listdir('models') if os.path.isdir(os.path.join('models', name))]
+        if not available_models:
+            yield "No models available in the models directory."
+            return
+        selected_model = available_models[0]
+
+    # Automatically load the default model when the Gradio system is initialized
+    initial_model_load_status = next(load_model_wrapper(selected_model,autoload=True))
+    if initial_model_load_status:
+        print(initial_model_load_status)
