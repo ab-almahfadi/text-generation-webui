@@ -55,6 +55,8 @@ def create_ui():
                             shared.gradio['load_model'] = gr.Button('Load', visible=not shared.settings['autoload_model'], elem_classes='refresh-button', interactive=not mu)
                             shared.gradio['model_menu'] = gr.Dropdown(choices=utils.get_available_models(), value=selected_model, label='Model', elem_classes='slim-dropdown', interactive=not mu, allow_custom_value=True)
                             ui.create_refresh_button(shared.gradio['model_menu'], lambda: None, lambda: {'choices': utils.get_available_models()}, 'refresh-button', interactive=not mu)
+                        with gr.Row():
+                            shared.gradio['model_status'] = gr.Markdown('No model is loaded' if shared.model_name == 'None' else 'Ready')
 
         # Hover menu buttons
         with gr.Column(elem_id='chat-buttons'):
