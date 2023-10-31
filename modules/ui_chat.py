@@ -9,11 +9,10 @@ from PIL import Image
 from modules.models import load_model, unload_model
 from modules.logging_colors import logger
 
-from modules import chat, prompts, shared, ui, utils
+from modules import chat, prompts, shared, ui, utils, loaders
 from modules.html_generator import chat_html_wrapper
 from modules.text_generation import stop_everything_event
 from modules.utils import gradio
-from modules.ui_model_menu import  update_truncation_length
 from modules.models_settings import (
     apply_model_settings_to_state,
     get_model_metadata,
@@ -86,7 +85,7 @@ def create_ui():
                 shared.gradio['send-chat-to-default'] = gr.Button('Send to default')
                 shared.gradio['send-chat-to-notebook'] = gr.Button('Send to notebook')
 
-        with gr.Row():
+        with gr.Row("Model", elem_id="model-tab"):
             shared.gradio['model_status'] = gr.Markdown('No model is loaded' if shared.model_name == 'None' else 'Ready')
 
 
@@ -189,6 +188,10 @@ def create_event_handlers():
     # Obsolete variables, kept for compatibility with old extensions
     shared.input_params = gradio(inputs)
     shared.reload_inputs = gradio(reload_arr)
+
+    shared.gradio['loader'].change(
+        loaders.make_loader_params_visible, gradio('loader'), gradio(loaders.get_all_params())).then(
+        lambda value: gr.update(choices=loaders.get_model_types(value)), gradio('loader'), gradio('model_type'))
 
     shared.gradio['Generate'].click(
         ui.gather_interface_values, gradio(shared.input_elements), gradio('interface_state')).then(
@@ -434,3 +437,13 @@ def load_model_wrapper(selected_model, loader, autoload=True):
             logger.error('Failed to load the model.')
             print(exc)
             yield exc.replace('\n', '\n\n')
+
+
+def update_truncation_length(current_length, state):
+    if 'loader' in state:
+        if state['loader'].lower().startswith('exllama'):
+            return state['max_seq_len']
+        elif state['loader'] in ['llama.cpp', 'llamacpp_HF', 'ctransformers']:
+            return state['n_ctx']
+
+    return current_length
