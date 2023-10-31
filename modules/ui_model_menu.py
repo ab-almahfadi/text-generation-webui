@@ -4,6 +4,7 @@ import re
 import traceback
 from functools import partial
 from pathlib import Path
+import os
 
 import gradio as gr
 import psutil
@@ -58,7 +59,7 @@ def create_ui():
                 with gr.Row():
                     with gr.Column():
                         with gr.Row():
-                            shared.gradio['model_menu'] = gr.Dropdown(choices=selected_model, value=shared.model_name, label='Model', elem_classes='slim-dropdown', interactive=not mu, allow_custom_value=True)
+                            shared.gradio['model_menu'] = gr.Dropdown(choices=selected_model, value=shared.model_name, label='Model', elem_classes='slim-dropdown', interactive=not mu)
                             ui.create_refresh_button(shared.gradio['model_menu'], lambda: None, lambda: {'choices': utils.get_available_models()}, 'refresh-button', interactive=not mu)
                             shared.gradio['load_model'] = gr.Button("Load", visible=not shared.settings['autoload_model'], elem_classes='refresh-button', interactive=not mu)
                             shared.gradio['unload_model'] = gr.Button("Unload", elem_classes='refresh-button', interactive=not mu)
