@@ -13,8 +13,12 @@ from modules import chat, prompts, shared, ui, utils
 from modules.html_generator import chat_html_wrapper
 from modules.text_generation import stop_everything_event
 from modules.utils import gradio
-from modules.ui_model_menu import load_model, update_model_parameters,update_truncation_length
-from modules.models_settings import apply_model_settings_to_state,    get_model_metadata
+from modules.ui_model_menu import  update_truncation_length
+from modules.models_settings import (
+    apply_model_settings_to_state,
+    get_model_metadata,
+    update_model_parameters
+    )
 
 inputs = ('Chat input', 'interface_state')
 reload_arr = ('history', 'name1', 'name2', 'mode', 'chat_style')
