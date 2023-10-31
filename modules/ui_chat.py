@@ -2,16 +2,19 @@ import json
 from functools import partial
 from pathlib import Path
 import os
+import traceback
 
 import gradio as gr
 from PIL import Image
+from modules.models import load_model, unload_model
+from modules.logging_colors import logger
 
 from modules import chat, prompts, shared, ui, utils
 from modules.html_generator import chat_html_wrapper
 from modules.text_generation import stop_everything_event
 from modules.utils import gradio
-from modules.ui_model_menu import load_model, update_model_parameters, load_model_wrapper,update_truncation_length
-from modules.models_settings import apply_model_settings_to_state
+from modules.ui_model_menu import load_model, update_model_parameters,update_truncation_length
+from modules.models_settings import apply_model_settings_to_state,    get_model_metadata
 
 inputs = ('Chat input', 'interface_state')
 reload_arr = ('history', 'name1', 'name2', 'mode', 'chat_style')
@@ -167,6 +170,37 @@ def create_chat_settings_ui():
                     shared.gradio['tavern_desc'] = gr.Textbox(value='', lines=4, max_lines=4, label='Description', interactive=False)
 
             shared.gradio['Submit tavern character'] = gr.Button(value='Submit', interactive=False)
+
+def load_model_wrapper(selected_model, loader, autoload=False):
+    if not autoload:
+        yield f"The settings for `{selected_model}` have been updated.\n\nClick on \"Load\" to load it."
+        return
+
+    if selected_model == 'None':
+        yield "No model selected"
+    else:
+        try:
+            yield f"Loading `{selected_model}`..."
+            shared.model_name = selected_model
+            unload_model()
+            if selected_model != '':
+                shared.model, shared.tokenizer = load_model(shared.model_name, loader)
+
+            if shared.model is not None:
+                output = f"Successfully loaded `{selected_model}`."
+
+                settings = get_model_metadata(selected_model)
+                if 'instruction_template' in settings:
+                    output += '\n\nIt seems to be an instruction-following model with template "{}". In the chat tab, instruct or chat-instruct modes should be used.'.format(settings['instruction_template'])
+
+                yield output
+            else:
+                yield f"Failed to load `{selected_model}`."
+        except:
+            exc = traceback.format_exc()
+            logger.error('Failed to load the model.')
+            print(exc)
+            yield exc.replace('\n', '\n\n')
 
 
 def create_event_handlers():
