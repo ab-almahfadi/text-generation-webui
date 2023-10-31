@@ -11,6 +11,7 @@ from modules.html_generator import chat_html_wrapper
 from modules.text_generation import stop_everything_event
 from modules.utils import gradio
 from modules.ui_model_menu import load_model, update_model_parameters, load_model_wrapper,update_truncation_length
+from modules.models_settings import apply_model_settings_to_state
 
 inputs = ('Chat input', 'interface_state')
 reload_arr = ('history', 'name1', 'name2', 'mode', 'chat_style')
@@ -52,6 +53,7 @@ def create_ui():
                             shared.gradio['Stop'] = gr.Button('Stop', elem_id='stop', visible=False)
                             shared.gradio['Generate'] = gr.Button('Generate', elem_id='Generate', variant='primary')
                             shared.gradio['load_model'] = gr.Button('Load', visible=not shared.settings['autoload_model'], elem_classes='refresh-button', interactive=not mu)
+                            # shared.gradio['model_menu'] = gr.Dropdown(choices=utils.get_available_models(), value=selected_model, label='Model', elem_classes='slim-dropdown', interactive=not mu, allow_custom_value=True)
 
         # Hover menu buttons
         with gr.Column(elem_id='chat-buttons'):
@@ -184,14 +186,24 @@ def create_event_handlers():
         chat.save_history, gradio('history', 'unique_id', 'character_menu', 'mode'), None).then(
         lambda: None, None, None, _js=f'() => {{{ui.audio_notification_js}}}').then(ui.gather_interface_values, gradio(shared.input_elements), gradio('interface_state'))
     
+
+
     shared.gradio['load_model'].click(
         ui.gather_interface_values, gradio(shared.input_elements), gradio('interface_state')).then(
         update_model_parameters, gradio('interface_state'), None).then(
         partial(load_model_wrapper, autoload=True), gradio('model_menu', 'loader'), gradio('model_status'), show_progress=False).success(
         update_truncation_length, gradio('truncation_length', 'interface_state'), gradio('truncation_length')).then(
         lambda x: x, gradio('loader'), gradio('filter_by_loader'))
-    # Simulate a click on the Load button to run its event automatically
-    shared.gradio['load_model'].click()
+
+    # shared.gradio['model_menu'].change(
+    #     ui.gather_interface_values, gradio(shared.input_elements), gradio('interface_state')).then(
+    #     apply_model_settings_to_state, gradio('model_menu', 'interface_state'), gradio('interface_state')).then(
+    #     ui.apply_interface_values, gradio('interface_state'), gradio(ui.list_interface_input_elements()), show_progress=False).then(
+    #     update_model_parameters, gradio('interface_state'), None).then(
+    #     load_model_wrapper, gradio('model_menu', 'loader', 'autoload_model'), gradio('model_status'), show_progress=False).success(
+    #     update_truncation_length, gradio('truncation_length', 'interface_state'), gradio('truncation_length')).then(
+    #     lambda x: x, gradio('loader'), gradio('filter_by_loader'))
+
 
     shared.gradio['textbox'].submit(
         ui.gather_interface_values, gradio(shared.input_elements), gradio('interface_state')).then(
