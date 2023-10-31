@@ -13,12 +13,13 @@ import torch
 from modules import loaders, shared, ui, utils
 from modules.logging_colors import logger
 from modules.LoRA import add_lora_to_model
-# from modules.models import load_model, unload_model
+from modules.ui_chat import load_model_wrapper
+from modules.models import  unload_model
 from modules.models_settings import (
     # apply_model_settings_to_state,
     # get_model_metadata,
     save_model_settings,
-    # update_model_parameters
+    update_model_parameters
 )
 from modules.utils import gradio
 
@@ -169,23 +170,23 @@ def create_event_handlers():
     #     update_truncation_length, gradio('truncation_length', 'interface_state'), gradio('truncation_length')).then(
     #     lambda x: x, gradio('loader'), gradio('filter_by_loader'))
 
-    # shared.gradio['reload_model'].click(
-    #     unload_model, None, None).then(
-    #     ui.gather_interface_values, gradio(shared.input_elements), gradio('interface_state')).then(
-    #     update_model_parameters, gradio('interface_state'), None).then(
-    #     partial(load_model_wrapper, autoload=True), gradio('model_menu', 'loader'), gradio('model_status'), show_progress=False).success(
-    #     update_truncation_length, gradio('truncation_length', 'interface_state'), gradio('truncation_length')).then(
-    #     lambda x: x, gradio('loader'), gradio('filter_by_loader'))
+    shared.gradio['reload_model'].click(
+        unload_model, None, None).then(
+        ui.gather_interface_values, gradio(shared.input_elements), gradio('interface_state')).then(
+        update_model_parameters, gradio('interface_state'), None).then(
+        partial(load_model_wrapper, autoload=True), gradio('model_menu', 'loader'), gradio('model_status'), show_progress=False).success(
+        update_truncation_length, gradio('truncation_length', 'interface_state'), gradio('truncation_length')).then(
+        lambda x: x, gradio('loader'), gradio('filter_by_loader'))
 
-    # shared.gradio['unload_model'].click(
-    #     unload_model, None, None).then(
-    #     lambda: "Model unloaded", None, gradio('model_status'))
+    shared.gradio['unload_model'].click(
+        unload_model, None, None).then(
+        lambda: "Model unloaded", None, gradio('model_status'))
 
     shared.gradio['save_model_settings'].click(
         ui.gather_interface_values, gradio(shared.input_elements), gradio('interface_state')).then(
         save_model_settings, gradio('model_menu', 'interface_state'), gradio('model_status'), show_progress=False)
 
-    # shared.gradio['lora_menu_apply'].click(load_lora_wrapper, gradio('lora_menu'), gradio('model_status'), show_progress=False)
+    shared.gradio['lora_menu_apply'].click(load_lora_wrapper, gradio('lora_menu'), gradio('model_status'), show_progress=False)
     shared.gradio['download_model_button'].click(download_model_wrapper, gradio('custom_model_menu', 'download_specific_file'), gradio('model_status'), show_progress=True)
     shared.gradio['get_file_list'].click(partial(download_model_wrapper, return_links=True), gradio('custom_model_menu', 'download_specific_file'), gradio('model_status'), show_progress=True)
     shared.gradio['autoload_model'].change(lambda x: gr.update(visible=not x), gradio('autoload_model'), gradio('load_model'))
@@ -223,10 +224,10 @@ def create_event_handlers():
 #             yield exc.replace('\n', '\n\n')
 
 
-# def load_lora_wrapper(selected_loras):
-#     yield ("Applying the following LoRAs to {}:\n\n{}".format(shared.model_name, '\n'.join(selected_loras)))
-#     add_lora_to_model(selected_loras)
-#     yield ("Successfuly applied the LoRAs")
+def load_lora_wrapper(selected_loras):
+    yield ("Applying the following LoRAs to {}:\n\n{}".format(shared.model_name, '\n'.join(selected_loras)))
+    add_lora_to_model(selected_loras)
+    yield ("Successfuly applied the LoRAs")
 
 
 def download_model_wrapper(repo_id, specific_file, progress=gr.Progress(), return_links=False, check=False):
