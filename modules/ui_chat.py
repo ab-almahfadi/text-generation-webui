@@ -175,37 +175,6 @@ def create_chat_settings_ui():
 
             shared.gradio['Submit tavern character'] = gr.Button(value='Submit', interactive=False)
 
-def load_model_wrapper(selected_model, loader, autoload=False):
-    if not autoload:
-        yield f"The settings for `{selected_model}` have been updated.\n\nClick on \"Load\" to load it."
-        return
-
-    if selected_model == 'None':
-        yield "No model selected"
-    else:
-        try:
-            yield f"Loading `{selected_model}`..."
-            shared.model_name = selected_model
-            unload_model()
-            if selected_model != '':
-                shared.model, shared.tokenizer = load_model(shared.model_name, loader)
-
-            if shared.model is not None:
-                output = f"Successfully loaded `{selected_model}`."
-
-                settings = get_model_metadata(selected_model)
-                if 'instruction_template' in settings:
-                    output += '\n\nIt seems to be an instruction-following model with template "{}". In the chat tab, instruct or chat-instruct modes should be used.'.format(settings['instruction_template'])
-
-                yield output
-            else:
-                yield f"Failed to load `{selected_model}`."
-        except:
-            exc = traceback.format_exc()
-            logger.error('Failed to load the model.')
-            print(exc)
-            yield exc.replace('\n', '\n\n')
-
 
 def create_event_handlers():
 
@@ -231,9 +200,9 @@ def create_event_handlers():
     shared.gradio['model_menu'].change(
         ui.gather_interface_values, gradio(shared.input_elements), gradio('interface_state')).then(
         apply_model_settings_to_state, gradio('model_menu', 'interface_state'), gradio('interface_state')).then(
-        ui.apply_interface_values, gradio('interface_state'), gradio(ui.list_interface_input_elements()), show_progress=False).then(
+        ui.apply_interface_values, gradio('interface_state'), gradio(ui.list_interface_input_elements()), show_progress=True).then(
         update_model_parameters, gradio('interface_state'), None).then(
-        load_model_wrapper, gradio('model_menu', 'loader', 'autoload_model'), gradio('model_status'), show_progress=False).success(
+        load_model_wrapper, gradio('model_menu', 'loader', 'autoload_model'), gradio('model_status'), show_progress=True).success(
         update_truncation_length, gradio('truncation_length', 'interface_state'), gradio('truncation_length')).then(
         lambda x: x, gradio('loader'), gradio('filter_by_loader'))
 
@@ -241,7 +210,7 @@ def create_event_handlers():
     shared.gradio['load_model'].click(
         ui.gather_interface_values, gradio(shared.input_elements), gradio('interface_state')).then(
         update_model_parameters, gradio('interface_state'), None).then(
-        partial(load_model_wrapper, autoload=True), gradio('model_menu', 'loader'), gradio('model_status'), show_progress=False).success(
+        partial(load_model_wrapper, autoload=True), gradio('model_menu', 'loader'), gradio('model_status'), show_progress=True).success(
         update_truncation_length, gradio('truncation_length', 'interface_state'), gradio('truncation_length')).then(
         lambda x: x, gradio('loader'), gradio('filter_by_loader'))
 
@@ -431,3 +400,35 @@ def create_event_handlers():
         lambda: None, None, None, _js=f'() => {{{ui.switch_tabs_js}; switch_to_notebook()}}')
 
     shared.gradio['show_controls'].change(None, gradio('show_controls'), None, _js=f'(x) => {{{ui.show_controls_js}; toggle_controls(x)}}')
+
+
+def load_model_wrapper(selected_model, loader, autoload=True):
+    if not autoload:
+        yield f"The settings for `{selected_model}` have been updated.\n\nClick on \"Load\" to load it."
+        return
+
+    if selected_model == 'None':
+        yield "No model selected"
+    else:
+        try:
+            yield f"Loading `{selected_model}`..."
+            shared.model_name = selected_model
+            unload_model()
+            if selected_model != '':
+                shared.model, shared.tokenizer = load_model(shared.model_name, loader)
+
+            if shared.model is not None:
+                output = f"Successfully loaded `{selected_model}`."
+
+                settings = get_model_metadata(selected_model)
+                if 'instruction_template' in settings:
+                    output += '\n\nIt seems to be an instruction-following model with template "{}". In the chat tab, instruct or chat-instruct modes should be used.'.format(settings['instruction_template'])
+
+                yield output
+            else:
+                yield f"Failed to load `{selected_model}`."
+        except:
+            exc = traceback.format_exc()
+            logger.error('Failed to load the model.')
+            print(exc)
+            yield exc.replace('\n', '\n\n')
