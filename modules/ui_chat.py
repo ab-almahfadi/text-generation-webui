@@ -85,7 +85,7 @@ def create_ui():
                 shared.gradio['send-chat-to-default'] = gr.Button('Send to default')
                 shared.gradio['send-chat-to-notebook'] = gr.Button('Send to notebook')
 
-        with gr.Row("Model", elem_id="model-tab"):
+        with gr.Row():
             shared.gradio['model_status'] = gr.Markdown('No model is loaded' if shared.model_name == 'None' else 'Ready')
 
 
@@ -219,6 +219,20 @@ def create_event_handlers():
         update_truncation_length, gradio('truncation_length', 'interface_state'), gradio('truncation_length')).then(
         lambda x: x, gradio('loader'), gradio('filter_by_loader'))
 
+    shared.gradio['reload_model'].click(
+        unload_model, None, None).then(
+        ui.gather_interface_values, gradio(shared.input_elements), gradio('interface_state')).then(
+        update_model_parameters, gradio('interface_state'), None).then(
+        partial(load_model_wrapper, autoload=True), gradio('model_menu', 'loader'), gradio('model_status'), show_progress=False).success(
+        update_truncation_length, gradio('truncation_length', 'interface_state'), gradio('truncation_length')).then(
+        lambda x: x, gradio('loader'), gradio('filter_by_loader'))
+
+    shared.gradio['unload_model'].click(
+        unload_model, None, None).then(
+        lambda: "Model unloaded", None, gradio('model_status'))
+
+
+    shared.gradio['autoload_model'].change(lambda x: gr.update(visible=not x), gradio('autoload_model'), gradio('load_model'))
 
 
     shared.gradio['textbox'].submit(
