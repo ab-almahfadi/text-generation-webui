@@ -56,6 +56,9 @@ def create_ui():
 
                     with gr.Column(scale=1, elem_id='generate-stop-container'):
                         with gr.Row():
+                            shared.gradio['model_status'] = gr.Markdown('No model is loaded' if shared.model_name == 'None' else 'Ready')
+
+                        with gr.Row():
                             shared.gradio['Stop'] = gr.Button('Stop', elem_id='stop', visible=False)
                             shared.gradio['Generate'] = gr.Button('Generate', elem_id='Generate', variant='primary')
                             shared.gradio['load_model'] = gr.Button('Load', visible=not shared.settings['autoload_model'], elem_classes='refresh-button', interactive=not mu)
@@ -85,8 +88,6 @@ def create_ui():
                 shared.gradio['send-chat-to-default'] = gr.Button('Send to default')
                 shared.gradio['send-chat-to-notebook'] = gr.Button('Send to notebook')
 
-        with gr.Row():
-            shared.gradio['model_status'] = gr.Markdown('No model is loaded' if shared.model_name == 'None' else 'Ready')
 
 
         with gr.Row(elem_id='past-chats-row'):
