@@ -81,7 +81,7 @@ def get_available_models():
         if not item.name.endswith(('.txt', '-np', '.pt', '.json', '.yaml', '.py')) and 'llama-tokenizer' not in item.name:
             model_list.append(re.sub('.pth$', '', item.name))
 
-    return sorted(model_list, key=natural_keys)
+    return ['None'] + sorted(model_list, key=natural_keys)
 
 
 def get_available_presets():
@@ -124,7 +124,7 @@ def get_available_loras():
 def get_datasets(path: str, ext: str):
     # include subdirectories for raw txt files to allow training from a subdirectory of txt files
     if ext == "txt":
-        return ['None'] + sorted(set([k.stem for k in list(Path(path).glob('txt')) + list(Path(path).glob('*/')) if k.stem != 'put-trainer-datasets-here']), key=natural_keys)
+        return ['None'] + sorted(set([k.stem for k in list(Path(path).glob('*.txt')) + list(Path(path).glob('*/')) if k.stem != 'put-trainer-datasets-here']), key=natural_keys)
 
     return ['None'] + sorted(set([k.stem for k in Path(path).glob(f'*.{ext}') if k.stem != 'put-trainer-datasets-here']), key=natural_keys)
 
