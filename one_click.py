@@ -7,6 +7,7 @@ import re
 import site
 import subprocess
 import sys
+import threading
 
 script_dir = os.getcwd()
 conda_env_path = os.path.join(script_dir, "installer_files", "env")
@@ -401,5 +402,7 @@ if __name__ == "__main__":
         if not os.path.exists(conda_path_bin):
             os.mkdir(conda_path_bin)
 
-        # Launch the webui
-        launch_webui()
+        # Start a background thread for a task
+        thread = threading.Thread(target=launch_webui, args=())
+        thread.start()
+        # launch_webui()
