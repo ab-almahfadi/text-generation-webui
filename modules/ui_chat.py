@@ -54,9 +54,6 @@ def create_ui():
                         shared.gradio['show_controls'] = gr.Checkbox(value=shared.settings['show_controls'], label='Show controls (Ctrl+S)', elem_id='show-controls')
                         shared.gradio['typing-dots'] = gr.HTML(value='<div class="typing"><span></span><span class="dot1"></span><span class="dot2"></span></div>', label='typing', elem_id='typing-container')
 
-                    with gr.Column(scale=1, elem_id='generate-stop-container'):
-                        with gr.Row():
-                            shared.gradio['model_status'] = gr.Markdown('No model is loaded' if shared.model_name == 'None' else 'Ready')
 
                         with gr.Row():
                             shared.gradio['Stop'] = gr.Button('Stop', elem_id='stop', visible=False)
@@ -64,6 +61,10 @@ def create_ui():
                             shared.gradio['load_model'] = gr.Button('Load', visible=not shared.settings['autoload_model'], elem_classes='refresh-button', interactive=not mu)
                             shared.gradio['model_menu'] = gr.Dropdown(choices=utils.get_available_models(), value=selected_model, label='Model', elem_classes='slim-dropdown', interactive=not mu, allow_custom_value=True)
                             ui.create_refresh_button(shared.gradio['model_menu'], lambda: None, lambda: {'choices': utils.get_available_models()}, 'refresh-button', interactive=not mu)
+                            
+        with gr.Row():
+            with gr.Column(scale=1, elem_id='generate-stop-container'):
+                shared.gradio['model_status'] = gr.Markdown('No model is loaded' if shared.model_name == 'None' else 'Ready')
 
         # Hover menu buttons
         with gr.Column(elem_id='chat-buttons'):
