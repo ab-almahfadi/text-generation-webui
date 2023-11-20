@@ -55,12 +55,12 @@ def create_ui():
                         shared.gradio['typing-dots'] = gr.HTML(value='<div class="typing"><span></span><span class="dot1"></span><span class="dot2"></span></div>', label='typing', elem_id='typing-container')
 
 
-                    with gr.Row():
-                        shared.gradio['Stop'] = gr.Button('Stop', elem_id='stop', visible=False)
-                        shared.gradio['Generate'] = gr.Button('Generate', elem_id='Generate', variant='primary')
-                        shared.gradio['load_model'] = gr.Button('Load', visible=not shared.settings['autoload_model'], elem_classes='refresh-button', interactive=not mu)
-                        shared.gradio['model_menu'] = gr.Dropdown(choices=utils.get_available_models(), value=selected_model, label='Model', elem_classes='slim-dropdown', interactive=not mu, allow_custom_value=True)
-                        ui.create_refresh_button(shared.gradio['model_menu'], lambda: None, lambda: {'choices': utils.get_available_models()}, 'refresh-button', interactive=not mu)
+                with gr.Row():
+                    shared.gradio['Stop'] = gr.Button('Stop', elem_id='stop', visible=False)
+                    shared.gradio['Generate'] = gr.Button('Generate', elem_id='Generate', variant='primary')
+                    shared.gradio['load_model'] = gr.Button('Load', visible=not shared.settings['autoload_model'], elem_classes='refresh-button', interactive=not mu)
+                    shared.gradio['model_menu'] = gr.Dropdown(choices=utils.get_available_models(), value=selected_model, label='Model', elem_classes='slim-dropdown', interactive=not mu, allow_custom_value=True)
+                    ui.create_refresh_button(shared.gradio['model_menu'], lambda: None, lambda: {'choices': utils.get_available_models()}, 'refresh-button', interactive=not mu)
                             
         with gr.Row():
             with gr.Column(scale=1, elem_id='generate-stop-container'):
