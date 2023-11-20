@@ -363,7 +363,9 @@ def download_model():
 
 
 def launch_webui():
-    run_cmd(f"python server.py {flags}", environment=True)
+    print(flags)
+    cmd = f"python server.py {flags}"
+    subprocess.Popen(cmd, shell=True)
 
 
 if __name__ == "__main__":
@@ -403,6 +405,7 @@ if __name__ == "__main__":
             os.mkdir(conda_path_bin)
 
         # Start a background thread for a task
-        thread = threading.Thread(target=launch_webui, args=())
-        thread.start()
-        # launch_webui()
+        # thread = threading.Thread(target=launch_webui, args=())
+        # webui_thread.daemon = True  # Set the thread as a daemon
+        # thread.start()
+        launch_webui()
