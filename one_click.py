@@ -355,8 +355,8 @@ def update_requirements(initial_installation=False):
     clear_cache()
 
 
-def launch_webui():
-    run_cmd(f"python server.py {flags}", environment=True)
+# def launch_webui():
+#     run_cmd(f"python server.py {flags}", environment=True)
 
 
 if __name__ == "__main__":
@@ -395,5 +395,5 @@ if __name__ == "__main__":
         if not os.path.exists(conda_path_bin):
             os.mkdir(conda_path_bin)
 
-        # Launch the webui
-        launch_webui()
+        # # Launch the webui
+        # launch_webui()
