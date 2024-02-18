@@ -163,7 +163,7 @@ def create_interface():
             prevent_thread_lock=True,
             # share=shared.args.share,
             server_name= '0.0.0.0',
-            server_port='80',
+            # server_port=shared.args.listen_port,
             inbrowser=shared.args.auto_launch,
             auth=auth or None,
             ssl_verify=False if (shared.args.ssl_keyfile or shared.args.ssl_certfile) else True,
