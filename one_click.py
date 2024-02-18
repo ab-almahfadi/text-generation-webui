@@ -194,7 +194,7 @@ def install_webui():
         "N": "NONE"
     }
 
-    selected_gpu = gpu_choice_to_name["A"]
+    selected_gpu = gpu_choice_to_name[choice]
 
     if selected_gpu == "NONE":
         with open(cmd_flags_path, 'r+') as cmd_flags_file:
