@@ -356,6 +356,7 @@ def update_requirements(initial_installation=False):
 
 
 def launch_webui():
+    print(f"python server.py {flags}")
     run_cmd(f"python server.py {flags}", environment=True)
 
 
